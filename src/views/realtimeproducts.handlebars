@@ -1,0 +1,24 @@
+<h1>Real Time Products</h1>
+<h2>Productos actualizados en tiempo real</h2>
+
+<div id="contenedorProductos" class="container"></div>
+
+<h2>Formulario para agregar productos</h2>
+
+<form class="formulario">
+    <input type="text" id="title" class="inputMessi" placeholder="Titulo">
+    <input type="text" id="description"class="inputMessi" placeholder="Descripcion">
+    <input type="number" id="price" class="inputMessi" placeholder="Precio">
+    <input type="text" id="img" class="inputMessi" value="Sin Imagen">
+    <input type="text" id="code" class="inputMessi" placeholder="Código">
+    <input type="number" id="stock" class="inputMessi" placeholder="Stock">
+    <input type="text" id="category" class="inputMessi" placeholder="Categoria">
+    <select id="status">
+        <option value="true"> Activo </option>
+        <option value="false"> Inactivo </option>
+    </select>
+    <button class="btnMios" type="button" id="btnEnviar"> Enviar </button>
+</form>
+
+<script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+<script src="js/realtime.js"></script>

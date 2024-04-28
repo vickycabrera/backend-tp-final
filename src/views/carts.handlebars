@@ -1,0 +1,85 @@
+<h1 class="text-center">Carrito de Compras</h1>
+
+{{#if productos.length}}
+    <div class="container">
+        {{#each productos}}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Producto: {{this.product.title}}</h5>
+                <p class="card-text">Cantidad: {{this.quantity}}</p>
+                <p class="card-text">Precio: ${{this.product.totalPrice}}</p>
+                <button onclick="eliminarProducto('{{this.cartId}}', '{{this.product._id}}')"
+                    class="btn btn-danger">Eliminar</button>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+    <button onclick="vaciarCarrito('{{cartId}}')" class="btn btn-danger">Vaciar Carrito</button>
+    <button onclick="comprarCarrito('{{cartId}}')" class="btn btn-danger">Comprar</button>
+    <h3 class="mt-2">Total de la compra: ${{totalCompra}}</h3>
+{{else}}
+    <div class="container">
+        <h5 class="card-title">¡Tu carrito está vacío!</h5>
+    </div>
+{{/if}}
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{{!-- Organizar en un módulo en PUBLIC/JS --}}
+<script>
+    function eliminarProducto(cartId, productId) {
+        fetch(`/api/carts/${cartId}/product/${productId}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al eliminar el producto del carrito');
+                }
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    function vaciarCarrito(cartId) {
+        fetch(`/api/carts/${cartId}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al vaciar el carrito');
+                }
+                location.reload();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+        function comprarCarrito(cartId) {
+        fetch(`/api/carts/${cartId}/purchase`, {
+            method: 'POST'
+        })
+            .then(response => {
+                console.log("response comprarCarrito", response, Object.keys(response))
+                if (!response.ok) {
+                    throw new Error('Error al confirmar la compra');
+                }
+                else {
+                        Swal.fire({
+                        icon: 'success',
+                        title: '¡Compra confirmada!',
+                        text: 'Tu compra se ha realizado con éxito.',
+                        timer: 3000, 
+                        showConfirmButton: false,
+                        didClose: () => {
+                            location.reload();
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>

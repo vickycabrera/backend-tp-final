@@ -1,0 +1,16 @@
+
+<div>
+    <h1>Confirmación de Compra</h1>
+    <p><strong>Usuario:</strong> {{ email }}</p>
+    <p><strong>Código de Ticket:</strong> {{ ticket.code }}</p>
+    <p><strong>Valor del Ticket:</strong> ${{ ticket.amount }}</p>
+    <p><strong>Fecha y Hora de Compra:</strong> {{ ticket.purchase_datetime }}</p>
+    <p><strong>Productos Comprados:</strong></p>
+    <ul>
+        {{#each productosComprados }}
+            <li>{{ this.product.title }} - Valor: ${{ this.product.price }} - Cantidad: {{ this.quantity }}</li>
+        {{/each}}
+    </ul>
+    <p>¡Gracias por tu compra!</p>
+    <p>¡Te esperamos de vuelta pronto!</p>
+</div>
