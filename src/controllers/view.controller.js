@@ -29,7 +29,6 @@ class ViewsController {
 
 
             const cartId = req.user.cart.toString();
-            //console.log(cartId);
 
             res.render("products", {
                 productos: nuevoArray,

@@ -2,7 +2,6 @@ const transport = require("../config/email.config.js")
 
 class MailingRepository {
     async sendEmail(email, content) {
-        console.log("email", email, "content", content )
         const {productosDisponibles, ticket} = content
         await transport.sendMail({
             from: "Coder tests <vlcabrera92@gmail.com>",

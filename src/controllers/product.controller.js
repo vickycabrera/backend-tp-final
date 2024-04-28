@@ -15,12 +15,10 @@ class ProductController {
     }
 
     async getProducts(req, res) {
-        console.log("getproducts",req )
         try {
             let { limit = 10, page = 1, sort, query } = req.query;
 
             const productos = await productRepository.obtenerProductos(limit, page, sort, query);
-            console.log("getproducts",productos )
             res.json(productos);
         } catch (error) { 
             res.status(500).send("Error");
