@@ -5,6 +5,7 @@ const UserRepository = require("../repositories/user.repository.js");
 const userRepository = new UserRepository();
 const CartRepository = require("../repositories/cart.repository.js")
 const cartRepository = new CartRepository()
+const generarUsuarios = require("../utils/generateUsers.js")
 
 class UserController {
     async register(req, res) {
@@ -84,10 +85,24 @@ class UserController {
     }
 
     async admin(req, res) {
-        if (req.user.user.role !== "admin") {
-            return res.status(403).send("Acceso denegado");
-        }
         res.render("admin");
+    }
+    async createManyUsers(req, res) {
+        try {
+            const MOCK_QUANTITY = 10;
+            const users = generarUsuarios(MOCK_QUANTITY);        
+            const usersWithCarts = await Promise.all( users.map(async u=>{
+                const nuevoCarrito = await cartRepository.crearCarrito();
+                return {
+                    ...u,
+                    cart: nuevoCarrito._id
+                }
+            }))
+            const respuesta = await userRepository.createManyUsers(usersWithCarts);
+            res.json(respuesta);
+        } catch (error) {
+            res.status(500).send("Error al insertar muchos usuarios");
+        }
     }
 }
 

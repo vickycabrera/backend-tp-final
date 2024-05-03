@@ -11,6 +11,15 @@ class UserRepository {
         const usuario= new UserModel(user);
         return await usuario.save();
     }
+    async createManyUsers(users){
+        try {
+            const result = await UserModel.insertMany(users);
+            return result
+        } catch (error) {
+            console.log("error createManyUsers", error)
+            throw new Error("Error");
+        }
+    }
 }
 
 module.exports = UserRepository;

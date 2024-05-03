@@ -1,5 +1,6 @@
 const ProductRepository = require("../repositories/product.repository.js");
 const productRepository = new ProductRepository();
+const generarProductos = require("../utils/generateProducts.js")
 
 class ProductController {
 
@@ -60,6 +61,17 @@ class ProductController {
             res.json(respuesta);
         } catch (error) {
             res.status(500).send("Error al eliminar el producto");
+        }
+    }
+ 
+    async insertManyProducts(req, res) {
+        try {
+            const MOCK_QUANTITY = 50
+            const products = generarProductos(MOCK_QUANTITY)
+            let respuesta = await productRepository.crearMuchosProductos(products);
+            res.json(respuesta);
+        } catch (error) {
+            res.status(500).send("Error al insertar muchos productos");
         }
     }
 }

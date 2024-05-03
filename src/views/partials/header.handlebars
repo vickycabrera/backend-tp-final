@@ -8,15 +8,16 @@
         </button>
         <nav class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav fuentesNav ms-auto">
-                <li class="nav-item">
-                    <a href="/login">Inicio de Sesión</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/register">Registrarse</a>
-                </li>
-                <li class="nav-item">
-                    <a href="/api/users/profile">Mi Perfil</a>
-                </li>
+                {{#if isAuthenticated}}
+                    <!-- Si el usuario está autenticado, muestra un enlace de cerrar sesión -->
+                    <li class="nav-item"><a href="/api/users/profile">Mi Perfil</a></li>
+                    <li class="nav-item"><a href="/carts/{{userCart}}">Mi carrito</a></li>
+                    <li class="nav-item"><a href="/api/users/logout">Cerrar sesión</a></li>
+                {{else}}
+                    <!-- Si el usuario no está autenticado, muestra un enlace de iniciar sesión -->
+                    <li class="nav-item"><a href="/login">Iniciar sesión</a></li>
+                    <li class="nav-item"><a href="/register">Registrarse</a></li>
+                {{/if}}
             </ul>
         </nav>
     </div>

@@ -15,6 +15,11 @@
                 <p class="card-text">{{description}}</p>
                 <p class="card-text">Price: ${{price}}</p>
                 <form action="/api/carts/{{../cartId}}/product/{{id}}" method="POST">
+                    <select name="quantity" class="inputMessi">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                    </select>
                     <button class="btnMios" type="submit">Agregar al Carrito</button>
                 </form>
             </div>
@@ -38,3 +43,15 @@
         <p>Pagina {{currentPage}} de {{totalPages}} </p>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+{{!-- Organizar en un módulo en PUBLIC/JS --}}
+<script>
+    // Espera a que la página se cargue completamente
+    document.addEventListener("DOMContentLoaded", function() {
+        // Obtiene el elemento select por su nombre
+        var selectElement = document.getElementsByName("quantity")[0];
+        // Restablece el valor del select a la primera opción (index 0)
+        selectElement.selectedIndex = 0;
+    });
+</script>

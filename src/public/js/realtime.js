@@ -4,15 +4,43 @@ socket.on("productos", (data) => {
     renderProductos(data);
 })
 
-//Función para renderizar nuestros productos: 
+socket.on("error", (error) => {
+    console.log("error", error)
+    Swal.fire({
+        title: "Hubo un error", 
+        icon: "error",
+        text: error.cause, 
+        allowOutsideClick: false,
+    })
+})
 
+socket.on("productoAgregado", (producto) => {
+    Swal.fire({
+        title: "Producto creado", 
+        icon: "success",
+        allowOutsideClick: true,
+    }).then(()=>{
+    const formulario = document.getElementById("formularioAgregarProductos");
+    // Resetear el formulario
+    formulario.reset();
+    })
+})
+
+//Función para renderizar nuestros productos: 
 const renderProductos = (productos) => {
     const contenedorProductos = document.getElementById("contenedorProductos");
     contenedorProductos.innerHTML = "";
+    contenedorProductos.classList.add("row","justify-content-center");
+
+    let maxHeight = 400;
+
     productos.docs.forEach(item => {
+        const cardContainer = document.createElement("div");
+        // Controla el tamaño de las columnas en diferentes tamaños de pantalla
+        cardContainer.classList.add("col-sm-6", "col-md-4", "col-lg-3");
+
         const card = document.createElement("div");
-        card.classList.add("card");
-        card.classList.add("mb-3");
+        card.classList.add("card", "m-3", "p-2");
 
         card.innerHTML = ` 
                         <h5 class="card-title">Producto: ${item.title}</h5>
@@ -22,11 +50,17 @@ const renderProductos = (productos) => {
                         <p class="card-text">Precio: ${item.price}</p>
                         <button class="btn btn-danger"> Eliminar </button>
                         `;
-        contenedorProductos.appendChild(card);
+        cardContainer.appendChild(card);
+        contenedorProductos.appendChild(cardContainer);
         //Agregamos el evento al boton de eliminar: 
         card.querySelector("button").addEventListener("click", ()=> {
             eliminarProducto(item._id);
         })
+        
+        // Establecer la misma altura para todas las cards
+        contenedorProductos.querySelectorAll('.card').forEach(card => {
+            card.style.height = `${maxHeight}px`;
+        });
     })
 }
 
@@ -36,7 +70,6 @@ const eliminarProducto = (id) =>  {
 }
 
 //Agregamos productos del formulario: 
-
 document.getElementById("btnEnviar").addEventListener("click", () => {
     agregarProducto();
 })

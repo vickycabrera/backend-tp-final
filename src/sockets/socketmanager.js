@@ -21,8 +21,14 @@ class SocketManager {
             });
 
             socket.on("agregarProducto", async (producto) => {
-                await productRepository.agregarProducto(producto);
-                this.emitUpdatedProducts(socket);
+                try {
+                    
+                    await productRepository.agregarProducto(producto);
+                    this.emitUpdatedProducts(socket);
+                    socket.emit("productoAgregado", producto);
+                } catch (error) {
+                    socket.emit("error", error);
+                }
             });
 
             socket.on("message", async (data) => {

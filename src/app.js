@@ -8,6 +8,12 @@ const cors = require("cors");
 const path = require('path');
 const PUERTO = 8080;
 require("./database.js");
+const restrictToDevelopment = require("./middleware/restrictToDevelopment.js");
+const ProductController = require("./controllers/product.controller.js")
+const productController = new ProductController(); 
+const UserController = require("./controllers/user.controller.js");
+const userController = new UserController(); 
+const manejadorError = require("./middleware/error.js");
 
 const productsRouter = require("./routes/products.router.js");
 const cartsRouter = require("./routes/carts.router.js");
@@ -20,28 +26,30 @@ app.use(express.json());
 //app.use(express.static("./src/public"));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
-
 //Passport 
 app.use(passport.initialize());
 initializePassport();
 app.use(cookieParser());
+app.use((req, res, next) => {
+    res.locals.isAuthenticated =false
+    next();
+});
 
-//AuthMiddleware
-const authMiddleware = require("./middleware/authmiddleware.js");
-app.use(authMiddleware);
 
 //Handlebars
 app.engine("handlebars", exphbs.engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
-
-
 //Rutas: 
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
 app.use("/api/users", userRouter);
 app.use("/", viewsRouter);
 
+//DEV
+app.get("/mockingproducts", restrictToDevelopment, productController.insertManyProducts)
+app.get("/mockingusers", restrictToDevelopment, userController.createManyUsers)
+app.use(manejadorError);
 const httpServer = app.listen(PUERTO, () => {
     console.log(`Servidor escuchando en el puerto ${PUERTO}`);
 });

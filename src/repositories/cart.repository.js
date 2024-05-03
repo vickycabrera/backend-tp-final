@@ -28,18 +28,13 @@ class CartRepository {
         try {
             const carrito = await this.obtenerProductosDeCarrito(cartId);
             const existeProducto = carrito.products.find(item => item.product._id.toString() === productId);
-
             if (existeProducto) {
-                existeProducto.quantity += quantity;
-            } else {
-                carrito.products.push({ product: productId, quantity });
-            }
-
+                existeProducto.quantity += quantity
+            } else carrito.products.push({ product: productId, quantity });
+            
             //Vamos a marcar la propiedad "products" como modificada antes de guardar: 
             carrito.markModified("products");
-
-            await carrito.save();
-            return carrito;
+            return await carrito.save();
         } catch (error) {
             throw new Error("Error");
         }

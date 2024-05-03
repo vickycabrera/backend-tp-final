@@ -8,6 +8,7 @@ class BaseDatos {
     static #instancia;
 
     constructor() {
+        console.log("MONGO", mongo_url)
         mongoose.connect(mongo_url);
     }
 

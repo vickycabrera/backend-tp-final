@@ -1,38 +1,36 @@
 const ProductModel = require("../models/product.model.js");
+const CustomError = require("../services/errors/custom-error.js");
+const EErrors = require("../services/errors/enums.js");
+const { generarInfoError } = require("../services/errors/info.js");
+const constants = require("../utils/constants.js");
+const validations = require("../utils/validations.js");
 
 class ProductRepository {
-    async agregarProducto({ title, description, price, img, code, stock, category, thumbnails }) {
+    async agregarProducto(product) {
+        const prod= {...product, stock: Number(product.stock), price: Number(product.price)}
         try {
-            if (!title || !description || !price || !code || !stock || !category) {
-                console.log("Todos los campos son obligatorios");
-                return;
+            if (!validations.validatePropsOfProduct(prod, constants.PRODUCT_REQUIRED_FIELDS)) {
+                throw new CustomError({
+                    name: "Crear producto",
+                    message: "Error al intentar crear un producto",
+                    cause: generarInfoError(constants.PRODUCT_REQUIRED_FIELDS, prod),
+                    code: EErrors.TIPO_INVALIDO
+                })
             }
-
-            const existeProducto = await ProductModel.findOne({ code: code });
-
-            if (existeProducto) {
-                console.log("El código debe ser único, malditooo!!!");
-                return;
+            const productWithCode = await ProductModel.findOne({ code: prod.code });
+            if (productWithCode) {
+                throw new CustomError({
+                    name: "Crear producto",
+                    message: "Error al intentar crear un producto",
+                    cause: `El código ${prod.code} ya existe en otro producto`,
+                    code: EErrors.PRODUCTO_CODIGO_REPETIDO
+                })
             }
-
-            const newProduct = new ProductModel({
-                title,
-                description,
-                price,
-                img,
-                code,
-                stock,
-                category,
-                status: true,
-                thumbnails: thumbnails || []
-            });
-
-            await newProduct.save();
-
-            return newProduct;
-
-        } catch (error) {
-            throw new Error("Error");
+            const newProduct = new ProductModel({...prod, status:true});
+            return await newProduct.save();
+        } catch (e) {
+            if (e instanceof Error) throw e
+            else console.log(e)
         }
     }
 
@@ -126,6 +124,16 @@ class ProductRepository {
             console.log("Producto eliminado correctamente!");
             return deleteado;
         } catch (error) {
+            throw new Error("Error");
+        }
+    }
+
+    async crearMuchosProductos(productos){
+        try {
+            const result = await ProductModel.insertMany(productos);
+            return result
+        } catch (error) {
+            console.log("error crearMuchosProductos", error)
             throw new Error("Error");
         }
     }

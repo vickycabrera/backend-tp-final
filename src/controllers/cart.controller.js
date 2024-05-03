@@ -36,7 +36,8 @@ class CartController {
     async agregarProductoEnCarrito(req, res) {
         const cartId = req.params.cid;
         const productId = req.params.pid;
-        const quantity = req.body.quantity || 1;
+        const quantity = Number(req.body.quantity) || 1;
+        console.log("agregarProductoEnCarrito",quantity, typeof quantity)
         try {
             await cartRepository.agregarProducto(cartId, productId, quantity);
             const carritoID = (req.user.cart).toString();
