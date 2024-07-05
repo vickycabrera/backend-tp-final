@@ -7,6 +7,7 @@ const validations = require("../utils/validations.js");
 
 class ProductRepository {
     async agregarProducto(product) {
+        //TO DO > AGREGAR OWNER
         const prod= {...product, stock: Number(product.stock), price: Number(product.price)}
         try {
             if (!validations.validatePropsOfProduct(prod, constants.PRODUCT_REQUIRED_FIELDS)) {

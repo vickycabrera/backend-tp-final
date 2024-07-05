@@ -39,6 +39,19 @@ class CartController {
         const quantity = Number(req.body.quantity) || 1;
         console.log("agregarProductoEnCarrito",quantity, typeof quantity)
         try {
+            //Tercer Integradora: 
+            // Buscar el producto para verificar el propietario
+            const producto = await productRepository.obtenerProductoPorId(productId);
+
+            if (!producto) {
+                return res.status(404).json({ message: 'Producto no encontrado' });
+            }
+
+            // Verificar si el usuario es premium y si es propietario del producto
+            if (req.user.role === 'premium' && producto.owner === req.user.email) {
+                return res.status(403).json({ message: 'No puedes agregar tu propio producto al carrito.' });
+            }
+            ////////////////////////////////////////////////////////////////////
             await cartRepository.agregarProducto(cartId, productId, quantity);
             const carritoID = (req.user.cart).toString();
 
