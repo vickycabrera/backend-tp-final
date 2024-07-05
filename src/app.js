@@ -59,3 +59,22 @@ const httpServer = app.listen(PUERTO, () => {
 const SocketManager = require("./sockets/socketmanager.js");
 new SocketManager(httpServer);
 
+//SWAGGER: 
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUiExpress = require('swagger-ui-express');
+
+// Creamos un objeto de configuración: swaggerOptions
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.1",
+        info: {
+            title: "Documentacion de la App Tienda Marolio",
+            description: "E-commerce"
+        }
+    },
+    apis: ["./src/docs/**/*.yaml"]
+}
+
+// Conectamos Swagger a nuestro servidor de Express
+const specs = swaggerJSDoc(swaggerOptions);
+app.use("/apidocs", swaggerUiExpress.serve, swaggerUiExpress.setup(specs));
