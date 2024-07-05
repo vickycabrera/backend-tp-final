@@ -94,8 +94,10 @@ class ViewsController {
     }
 
     async renderRealTimeProducts(req, res) {
+        const usuario = req.user; 
+        console.log("renderRealTimeProducts", usuario)
         try {
-            res.render("realtimeproducts");
+            res.render("realtimeproducts", {role: usuario.role, email: usuario.email});
         } catch (error) {
             console.log("error en la vista real time", error);
             res.status(500).json({ error: "Error interno del servidor" });
@@ -122,9 +124,10 @@ class ViewsController {
                     res.render("confirmacion-envio");
     }
 
-    // async renderPremium(req, res) {
-    //                 res.render("panel-premium");
-    // }
+    async renderPremium(req, res) {
+        //TO DO agregar userProducts / PRODUCTOS QUE TENGAN COMO OWNER EL MISMO MAIL QUE EL USUARIO
+                    res.render("panel-premium");
+    }
 }
 
 module.exports = ViewsController;
