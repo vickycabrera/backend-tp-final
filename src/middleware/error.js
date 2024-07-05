@@ -2,7 +2,7 @@
 const EErrors = require('../services/errors/enums.js');
 
 const manejadorError = (error, req, res, next) => {
-    console.log("manejadorError", error.cause); 
+    console.log("manejadorError", req); 
     // Suponiendo que 'causa' es una propiedad del objeto 'error' que contiene información adicional sobre el error
     switch(error.code) {
         case EErrors.RUTA_ERROR:

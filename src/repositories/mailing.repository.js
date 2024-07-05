@@ -1,7 +1,7 @@
 const transport = require("../config/email.config.js")
 
 class MailingRepository {
-    async sendEmail(email, content) {
+    async sendEmail(email, content) { //TO DO CAMBIAR NOMBRE DE FUNCION
         const {productosDisponibles, ticket} = content
         await transport.sendMail({
             from: "Coder tests <vlcabrera92@gmail.com>",
@@ -29,6 +29,29 @@ class MailingRepository {
             </div>
             `,
         })
+    }
+    async sendRestorePassword(email, first_name, token) {
+        try {
+            const mailOptions = {
+                from: 'Coder tests <vlcabrera92@gmail.com>',
+                to: email,
+                subject: 'Restablecimiento de Contraseña',
+                html: `
+                    <h1>Restablecimiento de Contraseña</h1>
+                    <p>Hola ${first_name},</p>
+                    <p>Has solicitado restablecer tu contraseña. Utiliza el siguiente código para cambiar tu contraseña:</p>
+                    <p><strong>${token}</strong></p>
+                    <p>Este código expirará en 1 hora.</p>
+                    <a href="http://localhost:8080/password">Restablecer Contraseña</a>
+                    <p>Si no solicitaste este restablecimiento, ignora este correo.</p>
+                `
+            };
+
+            await transport.sendMail(mailOptions);
+        } catch (error) {
+            console.error("Error al enviar correo electrónico:", error);
+            throw new Error("Error al enviar correo electrónico");
+        }
     }
 }
 

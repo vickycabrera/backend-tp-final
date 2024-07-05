@@ -27,7 +27,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 //Passport 
-app.use(passport.initialize());
+console.log("passporttttt")
+app.use(passport.initialize()); 
 initializePassport();
 app.use(cookieParser());
 app.use((req, res, next) => {
@@ -49,7 +50,7 @@ app.use("/", viewsRouter);
 //DEV
 app.get("/mockingproducts", restrictToDevelopment, productController.insertManyProducts)
 app.get("/mockingusers", restrictToDevelopment, userController.createManyUsers)
-app.use(manejadorError);
+//app.use(manejadorError);
 const httpServer = app.listen(PUERTO, () => {
     console.log(`Servidor escuchando en el puerto ${PUERTO}`);
 });

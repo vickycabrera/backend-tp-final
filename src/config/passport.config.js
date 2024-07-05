@@ -10,8 +10,11 @@ const initializePassport = () => {
         secretOrKey: "coderhouse"
     }, async (jwt_payload, done) => {
         try {
+            console.log("estoy en initializepassport", jwt_payload)
             // Busca el usuario en la base de datos usando el ID del payload JWT
             const user = await UserModel.findById(jwt_payload.user._id);
+            
+
             if (!user) {
                 return done(null, false);
             }

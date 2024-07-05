@@ -14,5 +14,10 @@ router.post("/logout", userController.logout.bind(userController));
 router.get("/logout", userController.logout.bind(userController));
 router.get("/admin", checkUserRole(['admin']), authMiddleware, userController.admin);
 
+//Tercer integradora: 
+router.post("/requestPasswordReset", userController.requestPasswordReset); 
+router.post('/reset-password', userController.resetPassword);
+router.put("/premium/:uid", userController.cambiarRolPremium);
+
 module.exports = router;
 
