@@ -6,7 +6,6 @@ const userRepository = new UserRepository();
 const CartRepository = require("../repositories/cart.repository.js")
 const cartRepository = new CartRepository()
 const generarUsuarios = require("../utils/generateUsers.js")
-const UserModel= require("../models/user.model.js")
 const MailingRepository = require("../repositories/mailing.repository.js")
 const mailingRepository = new MailingRepository()
 const {generateResetToken} = require("../utils/tokenreset.js")
@@ -64,9 +63,9 @@ class UserController {
                 expiresIn: "1h"
             });
             //CUARTA INTEGRADORA.
-            // Actualizar la propiedad last_connection
-            // userFinded.last_connection = new Date();
-            // await userFinded.save();
+            //Actualizar la propiedad last_connection
+            userFinded.last_connection = new Date();
+            await userFinded.save();
             
             res.cookie("coderCookieToken", token, {
                 maxAge: 3600000,
@@ -81,7 +80,6 @@ class UserController {
     }
 
     async profile(req, res) {
-        //Con DTO: 
         const isPremium = req.user.role === 'premium';
         const userDto = new UserDTO(req.user.first_name, req.user.last_name, req.user.role);
         const isAdmin = req.user.role === 'admin';
@@ -89,6 +87,21 @@ class UserController {
     }
 
     async logout(req, res) {
+        if (req.user) {
+            try {
+                //CUARTA INTEGRADORA
+                // Actualizar la propiedad last_connection
+                req.user.last_connection = new Date();
+                await req.user.save();
+                res.clearCookie("coderCookieToken");
+                res.redirect("/login");
+            } catch (error) {
+                console.error(error);
+                res.status(500).send("Error interno del servidor");
+                return;
+            }
+        }
+
         res.clearCookie("coderCookieToken");
         res.redirect("/login");
     }
@@ -97,7 +110,6 @@ class UserController {
         res.render("admin");
     }
 
-    //MOCKEAR USUARIOS EN ENTORNO DE DESARROLLO
     async createManyUsers(req, res) {
         try {
             const MOCK_QUANTITY = 10;
@@ -115,96 +127,157 @@ class UserController {
             res.status(500).send("Error al insertar muchos usuarios");
         }
     }
-        // Tercer integradora / Recuperar contrasena: 
-        async requestPasswordReset(req, res) {
-            const { email } = req.body;
-    
-            try {
-                // Buscar al usuario por su correo electrónico
-                const user = await userRepository.findByEmail(email);
-                if (!user) {
-                    return res.status(404).send("Usuario no encontrado");
-                }
-    
-                // Generar un token 
-                const token = generateResetToken();
-    
-                // Guardar el token en el usuario
-                user.resetToken = {
-                    token: token,
-                    expiresAt: new Date(Date.now() + 3600000) // 1 hora de duración
-                };
-                await user.save();
-    
-                // Enviar correo electrónico con el enlace de restablecimiento utilizando EmailService
-                await mailingRepository.sendRestorePassword(email, user.first_name, token);
-    
-                res.redirect("/confirmacion-envio");
-            } catch (error) {
-                console.error(error);
-                res.status(500).send("Error interno del servidor");
+    // Tercer integradora / Recuperar contrasena: 
+    async requestPasswordReset(req, res) {
+        const { email } = req.body;
+
+        try {
+            // Buscar al usuario por su correo electrónico
+            const user = await userRepository.findByEmail(email);
+            if (!user) {
+                return res.status(404).send("Usuario no encontrado");
             }
+
+            // Generar un token 
+            const token = generateResetToken();
+
+            // Guardar el token en el usuario
+            user.resetToken = {
+                token: token,
+                expiresAt: new Date(Date.now() + 3600000) // 1 hora de duración
+            };
+            await user.save();
+
+            // Enviar correo electrónico con el enlace de restablecimiento utilizando EmailService
+            await mailingRepository.sendRestorePassword(email, user.first_name, token);
+
+            res.redirect("/confirmacion-envio");
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Error interno del servidor");
         }
-    
-        async resetPassword(req, res) {
-            const { email, password, token } = req.body;
-    
-            try {
-                // Buscar al usuario por su correo electrónico
-                const user = await userRepository.findByEmail(email);
-                if (!user) {
-                    return res.render("passwordcambio", { error: "Usuario no encontrado" });
-                }
-    
-                // Obtener el token de restablecimiento de la contraseña del usuario
-                const resetToken = user.resetToken;
-                if (!resetToken || resetToken.token !== token) {
-                    return res.render("passwordreset", { error: "El token de restablecimiento de contraseña es inválido" });
-                }
-    
-                // Verificar si el token ha expirado
-                const now = new Date();
-                if (now > resetToken.expiresAt) {
-                    // Redirigir a la página de generación de nuevo correo de restablecimiento
-                    return res.redirect("/passwordcambio");
-                }
-    
-                // Verificar si la nueva contraseña es igual a la anterior
-                if (isValidPassword(password, user)) {
-                    return res.render("passwordcambio", { error: "La nueva contraseña no puede ser igual a la anterior" });
-                }
-    
-                // Actualizar la contraseña del usuario
-                user.password = createHash(password);
-                user.resetToken = undefined; // Marcar el token como utilizado
-                await user.save()
-    
-                // Renderizar la vista de confirmación de cambio de contraseña
-                return res.redirect("/login");
-            } catch (error) {
-                console.error(error);
-                return res.status(500).render("passwordreset", { error: "Error interno del servidor" });
+    }
+
+    async resetPassword(req, res) {
+        const { email, password, token } = req.body;
+
+        try {
+            // Buscar al usuario por su correo electrónico
+            const user = await userRepository.findByEmail(email);
+            if (!user) {
+                return res.render("passwordcambio", { error: "Usuario no encontrado" });
             }
-        }
-        async cambiarRolPremium(req, res) {
-            try {
-                const { uid } = req.params;
-        //TO DO cambiarlo / no usar userModel
-                const user = await UserModel.findById(uid);
-        
-                if (!user) {
-                    return res.status(404).json({ message: 'Usuario no encontrado' });
-                }
-        
-                const newRole = user.role === 'usuario' ? 'premium' : 'usuario';
-        
-                const updatedUser = await UserModel.findByIdAndUpdate(uid, { role: newRole }, { new: true });
-                res.json(updatedUser);
-            } catch (error) {
-                console.error(error);
-                res.status(500).json({ message: 'Error interno del servidor' });
+
+            // Obtener el token de restablecimiento de la contraseña del usuario
+            const resetToken = user.resetToken;
+            if (!resetToken || resetToken.token !== token) {
+                return res.render("passwordreset", { error: "El token de restablecimiento de contraseña es inválido" });
             }
+
+            // Verificar si el token ha expirado
+            const now = new Date();
+            if (now > resetToken.expiresAt) {
+                // Redirigir a la página de generación de nuevo correo de restablecimiento
+                return res.redirect("/passwordcambio");
+            }
+
+            // Verificar si la nueva contraseña es igual a la anterior
+            if (isValidPassword(password, user)) {
+                return res.render("passwordcambio", { error: "La nueva contraseña no puede ser igual a la anterior" });
+            }
+
+            // Actualizar la contraseña del usuario
+            user.password = createHash(password);
+            user.resetToken = undefined; // Marcar el token como utilizado
+            await user.save()
+
+            // Renderizar la vista de confirmación de cambio de contraseña
+            return res.redirect("/login");
+        } catch (error) {
+            console.error(error);
+            return res.status(500).render("passwordreset", { error: "Error interno del servidor" });
         }
+    }
+
+    async cambiarRolPremium(req, res) {
+        const { uid } = req.params;
+        try {
+            const user = await userRepository.findById(uid);
+
+            if (!user) {
+                return res.status(404).send("Usuario no encontrado");
+            }
+
+            // Verificamos si el usuario tiene la documentacion requerida: 
+            const requiredDocuments = ["id", "address", "account-status"];     
+
+            const userDocuments = user.documents.map(doc => doc.name.toLowerCase());
+            console.log("cambiarRolPremium", userDocuments,  requiredDocuments)
+            // function areAllRequiredDocumentsPresent(requiredDocs, docs) {
+            //     return requiredDocs.every(doc =>
+            //       docs.some(file => file.includes(doc))
+            //     );
+            //   }
+              
+            const areAllRequiredDocumentsPresent = requiredDocuments.every(doc => userDocuments.some(file=>file.includes(doc)));
+
+            if (!areAllRequiredDocumentsPresent) {
+                // TO DO devolver error que especifique que documentacion falta
+                return res.status(400).send("El usuario tiene que completar toda la documentacion requerida");
+            }
+
+            const newRole = user.role === 'usuario' ? 'premium' : 'usuario';
+
+            const updatedUser = await userRepository.changeRole(uid, newRole);
+            res.json(updatedUser);
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Error interno del servidor' });
+        }
+    }
+    
+    async uploadDocuments(req, res){
+        const { uid } = req.params;
+        const uploadedDocuments = req.files;
+
+        try {
+            const user = await userRepository.findById(uid);
+
+            if (!user) {
+                return res.status(404).send("Usuario no encontrado");
+            }
+
+            if (uploadedDocuments) {
+                if (uploadedDocuments.document) {
+                    user.documents = user.documents.concat(uploadedDocuments.document.map(doc => ({
+                        name: doc.originalname,
+                        reference: doc.path
+                    })))
+                }
+
+                if (uploadedDocuments.products) {
+                    user.documents = user.documents.concat(uploadedDocuments.products.map(doc => ({
+                        name: doc.originalname,
+                        reference: doc.path
+                    })))
+                }
+
+                if (uploadedDocuments.profile) {
+                    user.documents = user.documents.concat(uploadedDocuments.profile.map(doc => ({
+                        name: doc.originalname,
+                        reference: doc.path
+                    })))
+                }
+            }
+
+            await user.save();
+            res.status(200).send("Documentos cargados exitosamente");
+        } catch (error) {
+            console.log(error);
+            res.status(500).send("Error interno del servidor, los mosquitos seran cada vez mas grandes");
+        }
+            }
 }
 
 module.exports = UserController;

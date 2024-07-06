@@ -6,7 +6,6 @@ const userController = new UserController();
 const authMiddleware = require("../middleware/authmiddleware.js");
 const checkUserRole = require("../middleware/checkrole.js");
 
-
 router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/profile",authMiddleware, userController.profile);
@@ -18,6 +17,11 @@ router.get("/admin", checkUserRole(['admin']), authMiddleware, userController.ad
 router.post("/requestPasswordReset", userController.requestPasswordReset); 
 router.post('/reset-password', userController.resetPassword);
 router.put("/premium/:uid", userController.cambiarRolPremium);
+
+//Cuarta integradora: 
+//Vamos a crear un middleware para Multer y lo vamos a importar: 
+const upload = require("../middleware/multer.js")
+router.post("/:uid/documents", upload.fields([{ name: "document" }, { name: "products" }, { name: "profile" }]), userController.uploadDocuments)
 
 module.exports = router;
 
