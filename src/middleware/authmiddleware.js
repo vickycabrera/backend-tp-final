@@ -9,7 +9,6 @@ function authMiddleware(req, res, next) {
             req.user = null;
             return  res.render("unauthorized");
         } else {
-            console.log("USUARIO authMiddleware", user )
             req.user = user;
             res.locals.isAuthenticated = true
             res.locals.userCart= user.cart

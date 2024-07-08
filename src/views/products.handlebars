@@ -1,9 +1,9 @@
 <div class="d-flex justify-content-center align-items-center">
-  <h1 class="text-center">Productos</h1>
-  <a href="/carts/{{cartId}}" class="ms-5">
-    <i class="bi bi-cart cart-icon"></i>
-  </a>
-  
+    <h1 class="text-center">Productos</h1>
+    <a href="/carts/{{cartId}}" class="ms-5">
+        <i class="bi bi-cart cart-icon"></i>
+    </a>
+
 </div>
 <div class="container">
     <div class="row">
@@ -14,12 +14,15 @@
                 <h2 class="card-title">{{title}}</h2>
                 <p class="card-text">{{description}}</p>
                 <p class="card-text">Price: ${{price}}</p>
+
                 <form action="/api/carts/{{../cartId}}/product/{{id}}" method="POST">
-                    <select name="quantity" class="inputMessi">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                    </select>
+                    <div class="input-group mb-3">
+                        <button type="button" class="btn btn-outline-secondary"
+                            onclick="decreaseQuantity(this)">-</button>
+                        <input type="number" class="form-control" value="1" name="quantity" id="quantityInput" readonly>
+                        <button type="button" class="btn btn-outline-secondary"
+                            onclick="increaseQuantity(this)">+</button>
+                    </div>
                     <button class="btnMios" type="submit">Agregar al Carrito</button>
                 </form>
             </div>
@@ -27,9 +30,6 @@
         {{/each}}
     </div>
 </div>
-
-
-
 
 
 <div class="container mt-3">
@@ -44,14 +44,20 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-{{!-- Organizar en un módulo en PUBLIC/JS --}}
 <script>
-    // Espera a que la página se cargue completamente
-    document.addEventListener("DOMContentLoaded", function() {
-        // Obtiene el elemento select por su nombre
-        var selectElement = document.getElementsByName("quantity")[0];
-        // Restablece el valor del select a la primera opción (index 0)
-        selectElement.selectedIndex = 0;
-    });
+    function decreaseQuantity(button) {
+        let input = button.parentNode.querySelector('input[type=number]');
+        let currentValue = parseInt(input.value);
+        if (!isNaN(currentValue) && currentValue > 1) {
+            input.value = currentValue - 1;
+        }
+    }
+
+    function increaseQuantity(button) {
+        let input = button.parentNode.querySelector('input[type=number]');
+        let currentValue = parseInt(input.value);
+        if (!isNaN(currentValue)) {
+            input.value = currentValue + 1;
+        }
+    }
 </script>

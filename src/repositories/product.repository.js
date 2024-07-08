@@ -87,11 +87,9 @@ class ProductRepository {
             const producto = await ProductModel.findById(id);
 
             if (!producto) {
-                console.log("Producto no encontrado");
                 return null;
             }
 
-            console.log("Producto encontrado!! Claro que siiiiii");
             return producto;
         } catch (error) {
             throw new Error("Error");
@@ -102,11 +100,9 @@ class ProductRepository {
         try {
             const actualizado = await ProductModel.findByIdAndUpdate(id, productoActualizado);
             if (!actualizado) {
-                console.log("No se encuentra el producto");
                 return null;
             }
 
-            console.log("Producto actualizado con exito, como todo en mi vidaa!");
             return actualizado;
         } catch (error) {
             throw new Error("Error");
@@ -118,11 +114,9 @@ class ProductRepository {
             const deleteado = await ProductModel.findByIdAndDelete(id);
 
             if (!deleteado) {
-                console.log("No se encuentraaaa, busca bien!");
                 return null;
             }
 
-            console.log("Producto eliminado correctamente!");
             return deleteado;
         } catch (error) {
             throw new Error("Error");

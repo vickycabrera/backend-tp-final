@@ -1,3 +1,5 @@
+const MailingRepository = require("../repositories/mailing.repository.js");
+const mailingRepository = new MailingRepository()
 const ProductRepository = require("../repositories/product.repository.js");
 const productRepository = new ProductRepository();
 const generarProductos = require("../utils/generateProducts.js")
@@ -53,6 +55,21 @@ class ProductController {
         }
     }
 
+    async deleteProductAndSendEmail(id) {
+        try {
+            const prod = await productRepository.obtenerProductoPorId(id)
+
+            const productHasOwner = prod.owner !== 'admin'
+
+            if (productHasOwner){
+                await mailingRepository.sendProductHasBeenDeleted(prod, prod.owner)
+            }
+            
+            await productRepository.eliminarProducto(id);
+        } catch (error) {
+            throw new Error("Error");
+        }
+    }
     async deleteProduct(req, res) {
         const id = req.params.pid;
         try {
@@ -63,7 +80,6 @@ class ProductController {
             res.status(500).send("Error al eliminar el producto");
         }
     }
- 
     async insertManyProducts(req, res) {
         try {
             const MOCK_QUANTITY = 50

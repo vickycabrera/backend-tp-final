@@ -20,5 +20,8 @@ router.get("/password", viewsController.renderCambioPassword);
 router.get("/confirmacion-envio", viewsController.renderConfirmacion);
 router.get("/panel-premium", checkUserRole(['premium']), authMiddleware, viewsController.renderPremium);
 
+//Ultima entrega
+router.get("/panel-admin", checkUserRole(['admin']), authMiddleware, viewsController.renderUsers)
+
 module.exports = router;
 

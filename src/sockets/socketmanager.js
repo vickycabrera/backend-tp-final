@@ -1,6 +1,8 @@
 const socket = require("socket.io");
 const ProductRepository = require("../repositories/product.repository.js");
 const productRepository = new ProductRepository(); 
+const ProductController = require("../controllers/product.controller.js");
+const productController = new ProductController(); 
 const MessageModel = require("../models/message.model.js");
 
 class SocketManager {
@@ -16,7 +18,7 @@ class SocketManager {
             socket.emit("productos", await productRepository.obtenerProductos() );
 
             socket.on("eliminarProducto", async (id) => {
-                await productRepository.eliminarProducto(id);
+                await productController.deleteProductAndSendEmail(id);
                 this.emitUpdatedProducts(socket);
             });
 

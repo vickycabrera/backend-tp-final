@@ -1,0 +1,82 @@
+<h1>Panel admin</h1>
+
+<div class="d-flex justify-content-center align-items-center">
+    <h1 class="text-center">Usuarios</h1>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        {{#each users}}
+        <div class="card col-xl-4 col-md-6 col-sm-12 m-8">
+            <div class="card-body">
+                <h2 class="card-text">{{first_name}} {{last_name}}</h2>
+                <p class="card-text">Email: {{email}}</p>
+                <p class="card-text">Ultima conexion: {{last_connection}}</p>
+                <p class="card-text">Rol: {{role}}</p>
+
+                <button class="btnMios mb-2" type="button" onclick="deleteUser('{{role}}', '{{id}}')">Borrar usuario</button>
+                {{#if isPremium}}
+                <button class="btnMios" type="button" onclick="changeUserRole('{{id}}')">Pasar a usuario</button>
+                {{else}}
+                <button class="btnMios" type="button" onclick="changeUserRole('{{id}}')">Pasar a premium</button>
+                {{/if}}
+            </div>
+        </div>
+        {{/each}}
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function deleteUser(role, id) {
+        if (role === "admin") {
+            return  Swal.fire({
+                        icon: 'error',
+                        text: 'No podes borrar usuarios administradores',
+                        timer: 3000, 
+                    })
+        }
+        fetch(`/api/users/${id}`, {
+            method: 'DELETE'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Error al eliminar el usuario');
+            }
+            return  Swal.fire({
+                        icon: 'success',
+                        text: 'Usuario eliminado',
+                        timer: 3000,
+                        showConfirmButton: false,
+                        didClose: () => {
+                            location.reload();
+                        } 
+                    });
+            location.reload();
+        })
+        .catch(error => {
+                console.error('Error:', error);
+        });
+    }
+
+    function changeUserRole(id) {
+        fetch(`/api/users/premium/${id}`, {
+            method: 'PUT'
+        })
+        .then(response => {
+             if (!response.ok) {
+                throw new Error('Error al cambiar el rol del usuario');
+            }
+            return  Swal.fire({
+                icon: 'success',
+                text: 'Usuario modificado',
+                timer: 3000, 
+                showConfirmButton: false,
+                didClose: () => {
+                    location.reload();
+                }
+            })    
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>

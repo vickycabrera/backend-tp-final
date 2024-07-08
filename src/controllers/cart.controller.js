@@ -37,7 +37,6 @@ class CartController {
         const cartId = req.params.cid;
         const productId = req.params.pid;
         const quantity = Number(req.body.quantity) || 1;
-        console.log("agregarProductoEnCarrito",quantity, typeof quantity)
         try {
             //Tercer Integradora: 
             // Buscar el producto para verificar el propietario

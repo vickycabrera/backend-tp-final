@@ -93,8 +93,6 @@ class UserController {
                 // Actualizar la propiedad last_connection
                 req.user.last_connection = new Date();
                 await req.user.save();
-                res.clearCookie("coderCookieToken");
-                res.redirect("/login");
             } catch (error) {
                 console.error(error);
                 res.status(500).send("Error interno del servidor");
@@ -103,11 +101,7 @@ class UserController {
         }
 
         res.clearCookie("coderCookieToken");
-        res.redirect("/login");
-    }
-
-    async admin(req, res) {
-        res.render("admin");
+        res.redirect("/login")
     }
 
     async createManyUsers(req, res) {
@@ -212,12 +206,6 @@ class UserController {
             const requiredDocuments = ["id", "address", "account-status"];     
 
             const userDocuments = user.documents.map(doc => doc.name.toLowerCase());
-            console.log("cambiarRolPremium", userDocuments,  requiredDocuments)
-            // function areAllRequiredDocumentsPresent(requiredDocs, docs) {
-            //     return requiredDocs.every(doc =>
-            //       docs.some(file => file.includes(doc))
-            //     );
-            //   }
               
             const areAllRequiredDocumentsPresent = requiredDocuments.every(doc => userDocuments.some(file=>file.includes(doc)));
 
@@ -229,8 +217,8 @@ class UserController {
             const newRole = user.role === 'usuario' ? 'premium' : 'usuario';
 
             const updatedUser = await userRepository.changeRole(uid, newRole);
-            res.json(updatedUser);
 
+            res.json(updatedUser);
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Error interno del servidor' });
@@ -278,6 +266,53 @@ class UserController {
             res.status(500).send("Error interno del servidor, los mosquitos seran cada vez mas grandes");
         }
             }
+
+    async getUsers(req, res) {
+        try {
+            const allUsers = await userRepository.getUsers();
+
+            res.json(allUsers);
+        } catch (error) {
+            res.status(500).send("Error");
+        }
+    }
+    async deleteUserById(req, res) {
+        try {
+            const _id = req.uid
+            
+            await userRepository.deleteUserById(_id);
+
+            res.status(200).json({
+            message: "Usuario eliminado correctamente",
+            });
+        } catch (error) {
+            res.status(500).json({ error });
+        }
+    }
+    async deleteInactiveUsers(req, res) {
+        try {
+            const twoDaysAgo = new Date()
+
+            twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
+
+            const query = {last_connection: { $lt: twoDaysAgo }}
+
+            const inactiveUsers = await userRepository.findManyUsers(query);
+
+            const result = await userRepository.deleteUsers(query);
+
+            await mailingRepository.sendInactivityDeletionEmails(inactiveUsers)
+
+            res.status(200).json({
+            message: "Usuarios inactivos eliminados correctamente",
+            deletedCount: result.deletedCount,
+            deletedUsers: inactiveUsers
+        });
+        } catch (error) {
+            res.status(500).json({ error });
+        }
+    }
+    
 }
 
 module.exports = UserController;

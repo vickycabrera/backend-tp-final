@@ -1,6 +1,9 @@
 const ProductModel = require("../models/product.model.js");
 const CartRepository = require("../repositories/cart.repository.js");
 const cartRepository = new CartRepository();
+const UserRepository = require("../repositories/user.repository.js");
+const userRepository = new UserRepository();
+const UserDTO = require('../dto/user.dto.js');
 
 class ViewsController {
     async renderProducts(req, res) {
@@ -56,10 +59,8 @@ class ViewsController {
             const carrito = await cartRepository.obtenerProductosDeCarrito(cartId);
 
             if (!carrito) {
-                console.log("No existe ese carrito con el id");
                 return res.status(404).json({ error: "Carrito no encontrado" });
             }
-
 
             let totalCompra = 0;
 
@@ -95,11 +96,9 @@ class ViewsController {
 
     async renderRealTimeProducts(req, res) {
         const usuario = req.user; 
-        console.log("renderRealTimeProducts", usuario)
         try {
             res.render("realtimeproducts", {role: usuario.role, email: usuario.email});
         } catch (error) {
-            console.log("error en la vista real time", error);
             res.status(500).json({ error: "Error interno del servidor" });
         }
     }
@@ -113,20 +112,38 @@ class ViewsController {
     }
     //Tercer integradora: 
     async renderResetPassword(req, res) {
-                    res.render("passwordreset");
+        res.render("passwordreset");
     }
 
     async renderCambioPassword(req, res) {
-                    res.render("passwordcambio");
+        res.render("passwordcambio");
     }
 
     async renderConfirmacion(req, res) {
-                    res.render("confirmacion-envio");
+        res.render("confirmacion-envio");
     }
 
     async renderPremium(req, res) {
         //TO DO agregar userProducts / PRODUCTOS QUE TENGAN COMO OWNER EL MISMO MAIL QUE EL USUARIO
-                    res.render("panel-premium");
+        res.render("panel-premium");
+    }
+    async renderUsers(req, res){
+        try {
+            const users = await userRepository.getUsers()
+
+            const nuevoArray = users.map(u => {
+                const { _id, ...rest } = u.toObject();
+                return { id: _id, isPremium: u.role === "premium", ...rest }; // Agregar el ID al objeto
+            });
+
+            res.render("panel-admin", {users:nuevoArray} )
+        } catch (error) {
+            console.error("Error al obtener usuarios", error);
+            res.status(500).json({
+                status: 'error',
+                error: "Error interno del servidor"
+            });
+        }
     }
 }
 

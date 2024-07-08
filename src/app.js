@@ -27,7 +27,6 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cors());
 //Passport 
-console.log("passporttttt")
 app.use(passport.initialize()); 
 initializePassport();
 app.use(cookieParser());
@@ -35,7 +34,6 @@ app.use((req, res, next) => {
     res.locals.isAuthenticated =false
     next();
 });
-
 
 //Handlebars
 app.engine("handlebars", exphbs.engine());

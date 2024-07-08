@@ -53,6 +53,43 @@ class MailingRepository {
             throw new Error("Error al enviar correo electrónico");
         }
     }
+    async sendInactivityDeletionEmails(users) {
+        try {
+            const promises = users.map(user => {
+                const mailOptions = {
+                    from: 'Coder tests <vlcabrera92@gmail.com>',
+                    to: user.email,
+                    subject: 'Cuenta eliminada por inactividad',
+                    text: `Hola ${user.first_name},\n\nTu cuenta ha sido eliminada debido a la inactividad en los últimos dos días.\n\nSi tienes alguna pregunta, no dudes en contactarnos.\n\nSaludos,\nEl equipo`
+                };
+                return transport.sendMail(mailOptions);
+            });
+            return await Promise.all(promises);
+        } catch (error) {
+            console.error("Error al enviar correo electrónico:", error);
+            throw new Error("Error al enviar correo electrónico");
+        }
+    }
+    async sendProductHasBeenDeleted(product, email) {
+        try {
+            const mailOptions = {
+                from: 'Coder tests <vlcabrera92@gmail.com>',
+                to: email,
+                subject: 'Producto eliminado',
+                html: `
+                <h1>Se ha eliminado tu producto del catalogo</h1>
+                <p><strong>ID:</strong> ${product._id}</p>
+                <p><strong>Titulo:</strong> ${product.title}</p>
+                <p><strong>Descripcion:</strong> ${product.description}</p>
+                <p><strong>Precio:</strong> ${product.price}</p>
+            `
+            };
+            await transport.sendMail(mailOptions);
+        } catch (error) {
+            console.error("Error al enviar correo electrónico:", error);
+            throw new Error("Error al enviar correo electrónico");
+        }
+    }
 }
 
 module.exports = MailingRepository;

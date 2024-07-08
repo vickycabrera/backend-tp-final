@@ -41,7 +41,7 @@ const productSchema = new mongoose.Schema({
         type: String, 
         required: true, 
         default: 'admin' //correo 
-        }
+    }
 })
 
 productSchema.plugin(mongoosePaginate);

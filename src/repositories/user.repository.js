@@ -11,6 +11,13 @@ class UserRepository {
             throw error;
         }
     }
+    async findManyUsers(filterQuery){
+        try {
+            return await UserModel.find(filterQuery)
+        } catch (error) {
+            throw error;
+        }
+    }
     async findByCartId(cartId) {
         return UserModel.findOne({ cart: cartId });
     }
@@ -31,6 +38,27 @@ class UserRepository {
             return result
         } catch (error) {
             console.log("error createManyUsers", error)
+            throw new Error("Error");
+        }
+    }
+    async getUsers(){
+        try {
+            return await UserModel.find()  
+        } catch (error) {
+            throw new Error("Error");
+        }
+    }
+    async deleteUserById(id){
+        try {
+            return await UserModel.findByIdAndDelete(id);
+        } catch (error) {
+            throw new Error("Error");
+        }
+    }
+    async deleteUsers(filterQuery){
+        try {
+            return await UserModel.deleteMany(filterQuery)  
+        } catch (error) {
             throw new Error("Error");
         }
     }

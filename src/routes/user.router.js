@@ -4,14 +4,14 @@ const router = express.Router();
 const UserController = require("../controllers/user.controller.js");
 const userController = new UserController();
 const authMiddleware = require("../middleware/authmiddleware.js");
-const checkUserRole = require("../middleware/checkrole.js");
+//const checkUserRole = require("../middleware/checkrole.js");
 
 router.post("/register", userController.register);
 router.post("/login", userController.login);
 router.get("/profile",authMiddleware, userController.profile);
 router.post("/logout", userController.logout.bind(userController));
 router.get("/logout", userController.logout.bind(userController));
-router.get("/admin", checkUserRole(['admin']), authMiddleware, userController.admin);
+//router.get("/admin", checkUserRole(['admin']), authMiddleware, userController.admin);
 
 //Tercer integradora: 
 router.post("/requestPasswordReset", userController.requestPasswordReset); 
@@ -22,6 +22,12 @@ router.put("/premium/:uid", userController.cambiarRolPremium);
 //Vamos a crear un middleware para Multer y lo vamos a importar: 
 const upload = require("../middleware/multer.js")
 router.post("/:uid/documents", upload.fields([{ name: "document" }, { name: "products" }, { name: "profile" }]), userController.uploadDocuments)
+router.get("/", userController.getUsers);
+router.delete("/delete-inactive-users", userController.deleteInactiveUsers);
+router.delete("/:uid", userController.deleteInactiveUsers);
+
+// //Entrega final
+// router.get("/users", checkUserRole(['admin']), authMiddleware, userController.getAllUsers);
 
 module.exports = router;
 
